@@ -117,7 +117,7 @@ function createMap(earthquakes) {
     var labels = [];
 
     // Add min & max
-    var legendInfo = "<h1>Median Income</h1>";
+    var legendInfo = "<h1>Magnitude</h1>";
 
     div.innerHTML = legendInfo;
 console.log("limits", limits)
