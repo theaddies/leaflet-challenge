@@ -123,8 +123,8 @@ function createMap(earthquakes) {
 console.log("limits", limits)
     colors.forEach(function(d, index) {
  //     labels.push("<p><li style=\"background-color: " + colors[index] + "\"></li>" + quakeLabels[index] +"</p>");
-      labels.push("<li style=\"background-color:" + colors[index] + "\"> zdfz</li><span>"
-      + quakeLabels[index] +"</span>" )
+      labels.push("<li style=\"background-color:" + colors[index] + "\">_____</li><span>"
+      + quakeLabels[index] +"</span><br>" )
     });
 
     div.innerHTML += "<ul>" + labels.join("") + "</ul>";
