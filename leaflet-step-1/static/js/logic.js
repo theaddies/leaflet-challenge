@@ -9,6 +9,32 @@ d3.json(queryUrl, function(data) {
   console.log("data.features",data.features)
 });
 
+function selectColor(mag) {
+  switch(true){
+    case (mag < 1):
+      bubbleColor = "#a1e8af"
+      break;
+    case (mag <2):
+      bubbleColor = "#94c595"
+      break;
+    case (mag < 3):
+      bubbleColor = "#747c92"
+      break;
+    case (mag < 3.5):
+      bubbleColor = "#372772"
+      break;
+    case (mag < 4):
+      bubbleColor = "#3a2449"
+      break;
+      case (mag < 5):
+        bubbleColor = "#f19c79"
+        break;
+    default:
+      bubbleColor = "#a44a3f"
+  }
+  return (bubbleColor)
+}
+
 function createFeatures(earthquakeData) {
 
   // Define a function we want to run once for each feature in the features array
@@ -28,7 +54,7 @@ console.log("layer", layer)
     pointToLayer: function (feature, latlng) {
       var geojsonMarkerOptions = {
         radius: feature.properties.mag*5,
-        fillColor: "#ff7800",
+        fillColor: selectColor(feature.properties.mag),
         color: "#000",
         weight: 1,
         opacity: 1,
@@ -37,12 +63,12 @@ console.log("layer", layer)
       return L.circleMarker(latlng, geojsonMarkerOptions);
     }
   });
+
+
 console.log("earthquakes",earthquakes)
   // Sending our earthquakes layer to the createMap function
   createMap(earthquakes);
 }
-
-
 
 function createMap(earthquakes) {
 
@@ -76,6 +102,31 @@ var darkmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
     Earthquakes: earthquakes
   };
 
+  var legend = L.control({ position: "bottomright" });
+  legend.onAdd = function() {
+    var div = L.DomUtil.create("div", "info legend");
+    var limits = earthquakes.options.limits;
+    var colors = earthquakes.options.colors;
+    var labels = [];
+
+    // Add min & max
+    var legendInfo = "<h1>Median Income</h1>" +
+      "<div class=\"labels\">" +
+        "<div class=\"min\">"  + "</div>" +
+        "<div class=\"max\">"  + "</div>" +
+      "</div>";
+
+    div.innerHTML = legendInfo;
+
+    // limits.forEach(function(limit, index) {
+    //   labels.push("<li style=\"background-color: " + colors[index] + "\"></li>");
+    // });
+
+    // div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+    return div;
+  };
+
+
   // Create our map, giving it the streetmap and earthquakes layers to display on load
   var myMap = L.map("map", {
     center: [
@@ -84,6 +135,7 @@ var darkmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
     zoom: 5,
     layers: [streetmap, earthquakes]
   });
+legend.addTo(myMap)
 
   // Create a layer control
   // Pass in our baseMaps and overlayMaps
@@ -91,6 +143,12 @@ var darkmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
+
+    // Set up the legend
+
+  
+
+  
 }
 
 
