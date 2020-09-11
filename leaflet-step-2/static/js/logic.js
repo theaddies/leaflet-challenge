@@ -1,8 +1,8 @@
 // Store our API endpoint inside queryUrl
 var queryUrl = ["https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
-  "leaflet-challenge/leaflet-step-2/static/GeoJSON/PB2002_boundaries.json",
-  "leaflet-challenge/leaflet-step-2/static/GeoJSON/PB2002_orogens.json",
-  "leaflet-challenge/leaflet-step-2/static/GeoJSON/PB2002_plates.json"]
+  "./static/GeoJSON/PB2002_boundaries.json",
+  "./static/GeoJSON/PB2002_orogens.json",
+  "./static/GeoJSON/PB2002_plates.json"]
 
 // Define variables for our base layers
 var streetmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
