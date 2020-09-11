@@ -22,6 +22,16 @@ var darkmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{
   id: 'mapbox/dark-v10',
   accessToken: API_KEY
 })
+
+var satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+  attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+  tileSize: 512,
+  maxZoom: 18,
+  zoomOffset: -1,
+  id: 'mapbox/satellite-streets-v11',
+  accessToken: API_KEY
+})
+
 // Create our map, giving it the streetmap and earthquakes layers to display on load
 var myMap = L.map("map", {
   center: [
@@ -34,7 +44,8 @@ var myMap = L.map("map", {
 // Create a base layer that holds all three maps.
 let baseMaps = {
   "Streets": streetmap,
-  "Satellite": darkmap
+  "Dark Map": darkmap,
+  "Satellite": satelliteStreets
 };
 
 // Create the layers for our two different sets of data, earthquakes and tectonicplates.
@@ -153,9 +164,11 @@ var firstQuery = d3.json(queryUrl[0], function (earthquakeData) {
     div.innerHTML = legendInfo;
     colors.forEach(function (d, index) {
       //     labels.push("<p><li style=\"background-color: " + colors[index] + "\"></li>" + quakeLabels[index] +"</p>");
-      labels.push("<li style=\"background-color:" + colors[index] + "\">_____</li><span>"
+      labels.push("<li style=\"background-color:" + colors[index] + "\"></li><span>"
         + quakeLabels[index] + "</span><br>")
     });
+
+// 
 
     div.innerHTML += "<ul>" + labels.join("") + "</ul>";
     return div;

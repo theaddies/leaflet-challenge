@@ -16,7 +16,7 @@ html {
   font-weight: bold;
   color: #555;
   background: #fff;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 5px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
@@ -26,14 +26,14 @@ html {
 }
 
 .legend li {
-  display: inline;
-  text-align: left;
-  /* width: 30px;
-  height: 22px; */
+  display: block;
+  float: left;
+  width: 40px;
+  height: 15px;
 }
 
 .legend span {
-  /* display: inline-block; */
+  display: block;
   text-align: right;
-  /* display: inline; */
+
 }

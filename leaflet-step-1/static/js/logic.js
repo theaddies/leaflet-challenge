@@ -123,7 +123,7 @@ function createMap(earthquakes) {
 console.log("limits", limits)
     colors.forEach(function(d, index) {
  //     labels.push("<p><li style=\"background-color: " + colors[index] + "\"></li>" + quakeLabels[index] +"</p>");
-      labels.push("<li style=\"background-color:" + colors[index] + "\">_____</li><span>"
+      labels.push("<li style=\"background-color:" + colors[index] + "\"></li><span>"
       + quakeLabels[index] +"</span><br>" )
     });
 
@@ -146,3 +146,4 @@ console.log("limits", limits)
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
+}
