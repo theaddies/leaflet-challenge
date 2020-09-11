@@ -154,7 +154,7 @@ var firstQuery = d3.json(queryUrl[0], function (earthquakeData) {
   var legend = L.control({ position: "bottomright" });
   legend.onAdd = function () {
     var div = L.DomUtil.create("div", "info legend");
-    var limits = earthquakeData.properties;
+
     //    var colors = earthquakes.options.colors;
     var labels = [];
 
