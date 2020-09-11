@@ -2,26 +2,62 @@
 var queryUrl = ["https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
   "/leaflet-step-2/static/GeoJSON/PB2002_boundaries.json",
   "/leaflet-step-2/static/GeoJSON/PB2002_orogens.json",
-  "/leaflet-step-2/static/GeoJSON/PB2002_plates.json",
-  "/leaflet-step-2/static/GeoJSON/PB2002_steps.json"]
+  "/leaflet-step-2/static/GeoJSON/PB2002_plates.json"]
 
-var dataNames = ['earthquake', 'boundaries', 'orogen', 'plate Name', 'steps']
+// Define variables for our base layers
+var streetmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+  attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+  tileSize: 512,
+  maxZoom: 18,
+  zoomOffset: -1,
+  id: 'mapbox/streets-v11',
+  accessToken: "sk.eyJ1IjoidGhlYWRkaWVzIiwiYSI6ImNrZWMycXAyZTAzMnMyc2s5b3JjY21yZW8ifQ.9kBPjqmg89i-61swV4I-Kw"
+})
 
-// Perform a GET request to the query URL
-//why don't we set the request = to a variable make the call and then have a variable that
-//we work with further down.  do that also with other query and then there are 2
-//variables to do things with.
-var firstQuery = d3.json(queryUrl[0], function (data) {
-  // Once we get a response, send the data.features object to the createFeatures function
-  createFeatures(data.features);
-  console.log("data.features", data.features)
+var darkmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+  attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+  tileSize: 512,
+  maxZoom: 18,
+  zoomOffset: -1,
+  id: 'mapbox/dark-v10',
+  accessToken: API_KEY
+})
+// Create our map, giving it the streetmap and earthquakes layers to display on load
+var myMap = L.map("map", {
+  center: [
+    37.09, -95.71
+  ],
+  zoom: 5,
+  layers: [streetmap]
 });
-console.log("first Query", firstQuery)
-d3.json(queryUrl[1], function (data) {
-  // Once we get a response, send the data.features object to the createFeatures function
-  createFeaturesBoundaries(data.features);
-  console.log("data.features", data.features)
-});
+
+// Create a base layer that holds all three maps.
+let baseMaps = {
+  "Streets": streetmap,
+  "Satellite": darkmap
+};
+
+// Create the layers for our two different sets of data, earthquakes and tectonicplates.
+let earthquakesLayer = new L.LayerGroup();
+let boundaryLayer = new L.LayerGroup();
+let orogensLayer = new L.LayerGroup();
+let platesLayer = new L.LayerGroup();
+
+// let tectonicplates = new L.LayerGroup();
+
+// We define an object contains all of our overlays.
+// This overlay will be visible all the time.
+let overlayMaps = {
+
+  "Earthquakes": earthquakesLayer,
+  "Boundaries": boundaryLayer,
+  "Orogens": orogensLayer,
+  "Plates": platesLayer
+};
+
+// Then we add a control to the map that will allow the user to change which
+// layers are visible.
+L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 
 var colors = ["#a1e8af", "#94c595", "#747c92", "#372772", "#3a2449", "#f19c79",
   "#a44a3f"]
@@ -55,21 +91,36 @@ function selectColor(mag) {
   }
   return (bubbleColor)
 }
-function createFeatures(earthquakeData) {
 
-  // Define a function we want to run once for each feature in the features array
-  // Give each feature a popup describing the place and time of the earthquake
-  function onEachFeature(feature, layer) {
-    console.log("feature", feature)
-    console.log("layer", layer)
-    layer.bindPopup("<h3>" + feature.properties.place +
-      "</h3><hr><p>" + new Date(feature.properties.time) +
-      "</p><p>Magnitude:" + feature.properties.mag);
-  }
-  console.log(onEachFeature)
+// Define a function we want to run once for each feature in the features array
+// Give each feature a popup describing the place and time of the earthquake
+function onEachFeature(feature, layer) {
+  console.log("feature", feature)
+  console.log("layer", layer)
+  layer.bindPopup("<h3>Magnitude:" + feature.properties.mag +
+    "</h3><hr><p>When: " + new Date(feature.properties.time) +
+    "</p><p>Location: " + feature.properties.place + "</p>");
+}
+
+// Define a function we want to run once for each feature in the features array
+// Give each feature a popup describing the place and time of the earthquake
+function onEachFeatureB(feature, layer) {
+  console.log("feature", feature)
+  console.log("layer", layer)
+  layer.bindPopup("<h3>Magnitude:"  +
+    "</h3><hr><p></p>");
+}
+
+var dataNames = ['earthquake', 'boundaries', 'orogen', 'plate Name', 'steps']
+
+// Perform a GET request to the query URL
+var firstQuery = d3.json(queryUrl[0], function (earthquakeData) {
+  // Once we get a response, send the data.features object to the createFeatures function
+
+
   // Create a GeoJSON layer containing the features array on the earthquakeData object
   // Run the onEachFeature function once for each piece of data in the array
-  var earthquakes = L.geoJSON(earthquakeData, {
+  L.geoJSON(earthquakeData, {
     onEachFeature: onEachFeature,
     pointToLayer: function (feature, latlng) {
       var geojsonMarkerOptions = {
@@ -82,115 +133,101 @@ function createFeatures(earthquakeData) {
       };
       return L.circleMarker(latlng, geojsonMarkerOptions);
     }
-  });
+  })
 
-  console.log("earthquakes", earthquakes)
-  // Sending our earthquakes layer to the createMap function
-  createMap(earthquakes);
-}
+    // Sending our earthquakes layer to the createMap function
+    .addTo(earthquakesLayer);
+  earthquakesLayer.addTo(myMap);
 
-function createFeaturesBoundaries(boundaryData) {
+  // Set up the legend
+  var legend = L.control({ position: "bottomright" });
+  legend.onAdd = function () {
+    var div = L.DomUtil.create("div", "info legend");
+    var limits = earthquakeData.properties;
+    //    var colors = earthquakes.options.colors;
+    var labels = [];
 
-  // Define a function we want to run once for each feature in the features array
-  // Give each feature a popup describing the place and time of the earthquake
-  function onEachFeature(feature, layer) {
-    console.log("feature", feature)
-    console.log("layer", layer)
-    layer.bindPopup("<h3>" + feature.properties.place +"</h3>")
-  }
-  console.log(onEachFeature)
-  // Create a GeoJSON layer containing the features array on the earthquakeData object
-  // Run the onEachFeature function once for each piece of data in the array
-  var boundaries = L.geoJSON(boundaryData, {
-    onEachFeature: onEachFeature,
-    pointToLayer: function (feature, latlng) {
-      var geojsonMarkerOptions = {
-        radius: feature.properties.mag * 5,
-        fillColor: selectColor(feature.properties.mag),
-        color: "#000",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
-      };
-      return L.circleMarker(latlng, geojsonMarkerOptions);
-    }
-  });
+    // Add min & max
+    var legendInfo = "<h1>Magnitude</h1>";
 
-
-  // Sending our earthquakes layer to the createMap function
-  createMap(boundaries);
-}
-
-  function createMap(earthquakes) {
-
-    // Define variables for our base layers
-    var streetmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-      attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
-      tileSize: 512,
-      maxZoom: 18,
-      zoomOffset: -1,
-      id: 'mapbox/streets-v11',
-      accessToken: API_KEY
-    })
-
-    var darkmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-      attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
-      tileSize: 512,
-      maxZoom: 18,
-      zoomOffset: -1,
-      id: 'mapbox/dark-v10',
-      accessToken: API_KEY
-    })
-
-    // Define a baseMaps object to hold our base layers
-    var baseMaps = {
-      "Street Map": streetmap,
-      "Dark Map": darkmap
-    };
-
-    // Create overlay object to hold our overlay layer
-    var overlayMaps = {
-      Earthquakes: earthquakes,
-//      Boundaries: boundaries
-    };
-    // Set up the legend
-    var legend = L.control({ position: "bottomright" });
-    legend.onAdd = function () {
-      var div = L.DomUtil.create("div", "info legend");
-      var limits = earthquakes.properties;
-      //    var colors = earthquakes.options.colors;
-      var labels = [];
-
-      // Add min & max
-      var legendInfo = "<h1>Magnitude</h1>";
-
-      div.innerHTML = legendInfo;
-      console.log("limits", limits)
-      colors.forEach(function (d, index) {
-        //     labels.push("<p><li style=\"background-color: " + colors[index] + "\"></li>" + quakeLabels[index] +"</p>");
-        labels.push("<li style=\"background-color:" + colors[index] + "\">_____</li><span>"
-          + quakeLabels[index] + "</span><br>")
-      });
-
-      div.innerHTML += "<ul>" + labels.join("") + "</ul>";
-      return div;
-    };
-    // Create our map, giving it the streetmap and earthquakes layers to display on load
-    var myMap = L.map("map", {
-      center: [
-        37.09, -95.71
-      ],
-      zoom: 5,
-      layers: [streetmap, earthquakes]
+    div.innerHTML = legendInfo;
+    colors.forEach(function (d, index) {
+      //     labels.push("<p><li style=\"background-color: " + colors[index] + "\"></li>" + quakeLabels[index] +"</p>");
+      labels.push("<li style=\"background-color:" + colors[index] + "\">_____</li><span>"
+        + quakeLabels[index] + "</span><br>")
     });
-    legend.addTo(myMap)
 
-    // Create a layer control
-    // Pass in our baseMaps and overlayMaps
-    // Add the layer control to the map
-    L.control.layers(baseMaps, overlayMaps, {
-      collapsed: false
-    }).addTo(myMap);
+    div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+    return div;
+  };
+  legend.addTo(myMap)
+});
 
-
+firstQuery = d3.json(queryUrl[1], function (boundaryData) {
+  // Once we get a response, send the data.features object to the createFeatures function
+  console.log("boundaryData", boundaryData)
+  // Define a function we want to run once for each feature in the features array
+  // Give each feature a popup describing the place and time of the earthquake
+  function onEachFeature(feature, layer) {
+    layer.bindPopup("<h3>Plate Name:" + feature.properties.Name +
+      "</h3>");
   }
+  // Create a GeoJSON layer containing the features array on the earthquakeData object
+  // Run the onEachFeature function once for each piece of data in the array
+  L.geoJSON(boundaryData, {
+    onEachFeature: onEachFeature
+  })
+
+    // Sending our boundary layer to the createMap function
+    .addTo(boundaryLayer);
+
+});
+
+firstQuery = d3.json(queryUrl[2], function (orogensData) {
+  // Once we get a response, send the data.features object to the createFeatures function
+
+  // Define a function we want to run once for each feature in the features array
+  // Give each feature a popup describing the place and time of the earthquake
+  function onEachFeature(feature, layer) {
+    layer.bindPopup("<h3>Orogen Name:" + feature.properties.Name +
+      "</h3>");
+  }
+  // Create a GeoJSON layer containing the features array on the earthquakeData object
+  // Run the onEachFeature function once for each piece of data in the array
+  L.geoJSON(orogensData, {
+    onEachFeature: onEachFeature
+  })
+
+    // Sending our orogens layer to the createMap function
+    .addTo(orogensLayer);
+
+});
+
+firstQuery = d3.json(queryUrl[3], function (platesData) {
+  // Once we get a response, send the data.features object to the createFeatures function
+
+  // Define a function we want to run once for each feature in the features array
+  // Give each feature a popup describing the place and time of the earthquake
+  function onEachFeature(feature, layer) {
+    layer.bindPopup("<h3>Plate Code:" + feature.properties.Code +
+      "</h3><h3>Plate Name:" + feature.properties.PlateName +
+      "</h3>");
+  }
+  console.log(onEachFeature)
+  // Create a GeoJSON layer containing the features array on the earthquakeData object
+  // Run the onEachFeature function once for each piece of data in the array
+  L.geoJSON(platesData, {
+    onEachFeature: onEachFeature
+  })
+
+    // Sending our plates layer to the createMap function
+    .addTo(platesLayer);
+
+});
+
+// Create a layer control
+// Pass in our baseMaps and overlayMaps
+// Add the layer control to the map
+L.control.layers(baseMaps, overlayMaps, {
+  collapsed: false
+}).addTo(myMap);

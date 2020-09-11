@@ -146,27 +146,3 @@ console.log("limits", limits)
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
-
-  // Set up the legend
-
-
-
-
-}
-
-
-
-
-
-
-// // Loop through the cities array and create one marker for each city object
-// for (var i = 0; i < cities.length; i++) {
-//   L.circle(cities[i].location, {
-//     fillOpacity: 0.75,
-//     color: "white",
-//     fillColor: "purple",
-//     // Setting our circle's radius equal to the output of our markerSize function
-//     // This will make our marker's size proportionate to its population
-//     radius: markerSize(cities[i].population)
-//   }).bindPopup("<h1>" + cities[i].name + "</h1> <hr> <h3>Population: " + cities[i].population + "</h3>").addTo(myMap);
-// }
